@@ -1,0 +1,190 @@
+https://spark.apache.org/docs/latest/running-on-yarn.html
+https://sparkbyexamples.com/spark/spark-setup-on-hadoop-yarn/
+https://dwbi.org/pages/192
+
+"""""""""begin"""""""""""""""""""""""""""""""
+clean hdfs if it is necessary
+hdfs dfs -ls /tmp
+hdfs dfs -rm -r /user/hive/warehouse/my_hive_db.db/ratings_partitions
+
+FOR ALL NODES
+(1) go here: https://spark.apache.org/downloads.html
+wget https://dlcdn.apache.org/spark/spark-3.2.4/spark-3.2.4-bin-hadoop3.2.tgz
+tar -xzf spark-3.2.4-bin-hadoop3.2.tgz
+rm spark-3.2.4-bin-hadoop3.2.tgz
+mv spark-3.2.4-bin-hadoop3.2 spark
+
+(2) nano ~/.bashrc
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export SPARK_HOME=/home/ubuntu/spark
+export PATH=$PATH:$SPARK_HOME/bin
+export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH
+source ~/.bashrc
+
+ONLY FOR MASTER NODE EXCEPTIONALLY?
+(3) edit $SPARK_HOME/conf/spark-defaults.conf and set spark.master to yarn
+cp $SPARK_HOME/conf/spark-defaults.conf.template $SPARK_HOME/conf/spark-defaults.conf
+nano $SPARK_HOME/conf/spark-defaults.conf
+//spark.master yarn
+spark.master spark://masternode:7077
+spark.driver.memory 512m
+spark.yarn.am.memory 512m
+spark.executor.memory 512m
+//spark-submit --deploy-mode client --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/jars/spark-examples_2.12-3.2.4.jar 10
+
+(4)
+Next we need to configure Spark environment script in order to set the Java Home & Hadoop Configuration Directory
+cd $SPARK_HOME/conf
+cp spark-env.sh.template spark-env.sh
+nano $SPARK_HOME/conf/spark-env.sh
+#export JAVA_HOME=/usr/lib/jvm/java-7-oracle/jre
+#export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export SPARK_WORKER_CORES=2
+
+(5)
+Next we have to list down DataNodes which will act as the Slave server. 
+Open the slaves file & add the datanode hostnames. In our case we have two data nodes.
+ls /home/ubuntu/spark/conf/workers
+cp /home/ubuntu/spark/conf/workers.template /home/ubuntu/spark/conf/workers
+nano /home/ubuntu/spark/conf/workers
+datanode1
+datanode2
+datanode3
+
+(6)
+copy conf to nodes
+#scp $HADOOP_HOME/etc/hadoop/* ubuntu@datanode1:$HADOOP_HOME/etc/hadoop/
+scp /home/ubuntu/spark/conf/* ubuntu@datanode1:/home/ubuntu/spark/conf/
+scp /home/ubuntu/spark/conf/* ubuntu@datanode2:/home/ubuntu/spark/conf/
+scp /home/ubuntu/spark/conf/* ubuntu@datanode3:/home/ubuntu/spark/conf/
+
+(7)
+BEFORE
+jps on master gave:
+3488 NodeManager
+2704 NameNode
+5521 HistoryServer
+3141 SecondaryNameNode
+7861 Jps
+3322 ResourceManager
+2874 DataNode
+on slave slave
+1303 NodeManager
+2174 Jps
+1135 DataNode
+
+$SPARK_HOME/sbin/start-all.sh
+starting org.apache.spark.deploy.master.Master, logging to /home/ubuntu/spark/logs/spark-ubuntu-org.apache.spark.deploy.master.Master-1-masternode.out
+datanode2: starting org.apache.spark.deploy.worker.Worker, logging to /home/ubuntu/spark/logs/spark-ubuntu-org.apache.spark.deploy.worker.Worker-1-datanode2.out
+datanode1: starting org.apache.spark.deploy.worker.Worker, logging to /home/ubuntu/spark/logs/spark-ubuntu-org.apache.spark.deploy.worker.Worker-1-datanode1.out
+datanode3: starting org.apache.spark.deploy.worker.Worker, logging to /home/ubuntu/spark/logs/spark-ubuntu-org.apache.spark.deploy.worker.Worker-1-datanode3.out
+NOW on master we see "Master":
+3488 NodeManager
+2704 NameNode
+5521 HistoryServer
+3141 SecondaryNameNode
+3322 ResourceManager
+2874 DataNode
+8157 Jps
+8029 Master
+NOW on slave we see "Worker":
+2308 Worker
+1303 NodeManager
+2440 Jps
+1135 DataNode
+
+(8)
+UI Spark, see port 4040 to see running nodes etc
+
+(9)
+Configure history server
+nano $SPARK_HOME/conf/spark-defaults.conf
+spark.eventLog.enabled true
+spark.eventLog.dir hdfs://namenode:9000/user/spark/spark-logs
+spark.history.provider org.apache.spark.deploy.history.FsHistoryProvider
+spark.history.fs.logDirectory hdfs://namenode:9000/user/spark/spark-logs
+spark.history.fs.update.interval 10s
+spark.history.ui.port 18080
+
+$SPARK_HOME/sbin/start-history-server.sh
+18080
+
+# hdfs dfs -mkdir -p /user/spark/spark-logs
+// make sure it is owned by spark user/group
+# hdfs dfs -chown -R spark:spark /user/spark/
+// set 777 access rights and sticky bit
+# hdfs dfs -chmod 1777 /user/spark/spark-logs
+// restart the SHS process to test. CM > Spark > Instances > (select Spark History Server) > Actions > Restart
+
+(9)
+wget https://dst-de.s3.eu-west-3.amazonaws.com/scala_spark_fr/shakespeare.txt
+hdfs dfs -mkdir /scala
+hdfs dfs -put ~/shakespeare.txt /scala/
+hdfs dfs -put ./SimpleApp.scala /scala/
+
+(10)
+INSTALL sbt
+echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+sudo apt-get update
+sudo apt-get install sbt
+
+nano build.sbt
+name := "Simple Project"
+version := "1.0"
+scalaVersion := "2.12.15"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.3.1"
+
+(11)
+sbt package
+check: ls target/scala-2.12
+
+(12)
+info spark-submit here: https://sparkbyexamples.com/spark/spark-submit-command/
+
+spark-submit --class "SimpleApp" --master yarn --deploy-mode cluster target/scala-2.12/simple-project_2.12-1.0.jar
+https://stackoverflow.com/questions/30718473/where-do-normal-println-go-in-a-scala-jar-under-spark
+spark-submit --class "SimpleApp" --master yarn --deploy-mode client target/scala-2.12/simple-project_2.12-1.0.jar
+
+spark-shell --class "SimpleApp" --master yarn --deploy-mode client -i neo4jsparkCluster.scala
+
+took 0.088573 s
+Lines with a: 4722, Lines with b: 1838
+Job 3 finished: count at SimpleApp.scala:11, took 0.107265 s
+Lines with a: 16792, Lines with b: 6232
+
+Path does not exist
+
+-------restart-------------
+$SPARK_HOME/sbin/start-all.sh
+$SPARK_HOME/sbin/stop-all.sh 
+
+$HADOOP_HOME/sbin/stop-all.sh
+$HADOOP_HOME/sbin/start-dfs.sh
+$HADOOP_HOME/sbin/start-yarn.sh
+
+##############end#################
+
+
+
+
+(4) 
+scala> sc.getConf.get("spark.executor.memory")
+res5: String = 512m
+
+(5)
+https://saturncloud.io/blog/spark-with-hadoop-yarn-using-the-entire-cluster-nodes/
+https://dwbi.org/pages/192
+
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export SPARK_HOME=/home/ubuntu/spark
+export PATH=$PATH:$SPARK_HOME/bin
+export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH
+
+export SPARK_HOME=/usr/local/spark
+export PATH=$PATH:$SPARK_HOME/bin
+
+
