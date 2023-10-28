@@ -1,27 +1,17 @@
-/* ffSimpleApp.java */
+/* ML.java */
 import org.apache.spark.ml.regression.LinearRegression;
 import org.apache.spark.ml.regression.LinearRegressionModel;
 import org.apache.spark.ml.evaluation.RegressionEvaluator;
 
+import org.apache.spark.ml.classification.LogisticRegression;
+import org.apache.spark.ml.classification.LogisticRegressionModel;
+import org.apache.spark.mllib.evaluation.MulticlassMetrics;
+import org.apache.spark.mllib.evaluation.RegressionMetrics;
+
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-
-import org.apache.spark.SparkContext;
 import org.apache.spark.sql.RowFactory;
-
-import java.util.List;
-
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.Dataset;
-
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.SparkConf;
-
-import java.util.Arrays;
-import org.apache.spark.api.java.JavaPairRDD;
-import scala.Tuple2;
 
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.Dataset;
@@ -29,54 +19,55 @@ import org.apache.spark.sql.Row;
 import static org.apache.spark.sql.functions.col;
 import org.apache.spark.sql.DataFrameNaFunctions;
 
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.SparkContext;
+
+import java.util.Arrays;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.spark.ml.feature.StringIndexer;
-
-import org.apache.spark.ml.feature.VectorAssembler;
 
 import org.apache.spark.ml.feature.StandardScaler;
 import org.apache.spark.ml.feature.StandardScalerModel;
 
-import org.apache.spark.ml.classification.LogisticRegression;
-import org.apache.spark.ml.classification.LogisticRegressionModel;
-
 import scala.Tuple2;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.mllib.evaluation.MulticlassMetrics;
-import org.apache.spark.mllib.evaluation.RegressionMetrics;
-
 
 import org.apache.spark.ml.Pipeline;
 import org.apache.spark.ml.PipelineModel;
 import org.apache.spark.ml.PipelineStage;
-
-
 
 import org.apache.spark.ml.tuning.CrossValidator;
 import org.apache.spark.ml.tuning.CrossValidatorModel;
 import org.apache.spark.ml.tuning.ParamGridBuilder;
 import org.apache.spark.ml.param.ParamMap;
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator;
+import org.apache.spark.ml.feature.StringIndexer;
+import org.apache.spark.ml.feature.VectorAssembler;
 
 
-public class SimpleApp {
+public class ML {
   public static void main(String[] args) {
+    // INITIALIZATION
     SparkConf conf = new SparkConf().setAppName("app").setMaster("local");
-    //JavaSparkContext sc = new JavaSparkContext(conf);
-    //Or
+    // JavaSparkContext sc = new JavaSparkContext(conf);
+    // or
     SparkContext sc_raw = new SparkContext(conf);
     JavaSparkContext sc = JavaSparkContext.fromSparkContext(sc_raw);
 
-    //Read data
-    JavaRDD<String> rawRDD = sc.textFile("./src/housing.data");
+    // READ data from HDFS
+    // JavaRDD<String> rawRDD = sc.textFile("./src/housing.data");
+    JavaRDD<String> rawRDD = sc.textFile("/scala/housing.data");
     JavaRDD<String[]> RDD = rawRDD.map(line->line.substring(1).split("\\s+"));
+    rawRDD.take(10).forEach(line -> System.out.println(line));
+    System.out.println("Il y a " + rawRDD.count() + " lignes dans le RDD.");  
     Row r1 = RowFactory.create("name1", "value1", 1);
 
-    //convert JavaRDD<String[]> to JavaRDD<Row>
+    // CONVERT JavaRDD<String[]> to JavaRDD<Row>
     JavaRDD<Row> RDD_rows = RDD.map(fields -> RowFactory.create(fields));
-
+    // DEFINE type for each fiels
     StructType schema = DataTypes.createStructType(new StructField[] {
       DataTypes.createStructField("CRIM", DataTypes.StringType, true),
       DataTypes.createStructField("ZN", DataTypes.StringType, true),
@@ -92,16 +83,18 @@ public class SimpleApp {
       DataTypes.createStructField("B", DataTypes.StringType, true),
       DataTypes.createStructField("LSTAT", DataTypes.StringType, true),
       DataTypes.createStructField("MEDV", DataTypes.StringType, true)
-      //DataTypes.createStructField("val2", DataTypes.DoubleType, true),
-      //DataTypes.createStructField("val3", DataTypes.IntegerType, true)
-});
-    //RDD to Daraframe
+      // DataTypes.createStructField("val2", DataTypes.DoubleType, true),
+      // DataTypes.createStructField("val3", DataTypes.IntegerType, true)
+      });
+
+    // RDD to Daraframe
     SparkSession spark = SparkSession
     .builder()
     .appName("DataScientest")
     .getOrCreate();
     Dataset<Row> df = spark.createDataFrame(RDD_rows, schema);
     df.show();
+    // DEFINE type for each fiels
     Dataset<Row> df2 = df.select(col("CRIM").cast("double"),
                              col("ZN").cast("double"),
                              col("INDUS").cast("double"),
@@ -159,14 +152,13 @@ public class SimpleApp {
     System.out.println("Standardization for single model: "+ lr0model.getStandardization());
 
 /////////////////////////////////////////////////////////////
-    //Try the same, but using pipeline:
+    //Try the same (single fit), but using pipeline:
     Pipeline pipeline = new Pipeline().setStages(new PipelineStage[] {scaler, lr});
     PipelineModel model = pipeline.fit(train);
     Dataset<Row> predictions = model.transform(test);
     predictions.show();
     JavaRDD<Row> predictions_rdd = predictions.toJavaRDD();
-    JavaPairRDD< Object, Object> predictionAndLabels = predictions_rdd.mapToPair(p ->
-      new Tuple2<>(p.getAs(3), p.getAs(0)));
+    JavaPairRDD< Object, Object> predictionAndLabels = predictions_rdd.mapToPair(p -> new Tuple2<>(p.getAs(3), p.getAs(0)));
     System.out.println(predictions.getClass());
     System.out.println(predictions.rdd().getClass());
     //MulticlassMetrics metrics = new MulticlassMetrics(predictionAndLabels.rdd());
@@ -176,12 +168,13 @@ public class SimpleApp {
     RegressionEvaluator evaluateR2 = new RegressionEvaluator().setMetricName("r2");
     double r2 = evaluateR2.evaluate(forEvaluationDF);
     System.out.format("r2 = %f\n", r2);
-//Je n'arrive pas trouver COMMENT avoir des proprietes de scaler et de la regression
-//à partir de pipeline/pipeline model
-//System.out.println(model.stages()); donne que l'adresse
-//pour pyspark pipeline.getStages[0] ou model.stages[0] (pyspask)
-/////////////////////////////////////////////////
-    //Try the same, but using CV
+    //Je n'arrive pas trouver COMMENT avoir des proprietes de scaler et de la regression
+    //a partir de pipeline/pipeline model
+    //System.out.println(model.stages()); donne que l'adresse 
+    //pour pyspark pipeline.getStages[0] ou model.stages[0] (pyspask)
+
+    /////////////////////////////////////////////////
+    //Try the same, but using CV (cross validation)
     //go to Class LinearRegression then SetSolver
     //to get all possible solvers: "l-bfgs", "normal"
     ParamMap[] paramGrid = new ParamGridBuilder()
@@ -206,9 +199,9 @@ public class SimpleApp {
     double rCv2 = evaluateR2.evaluate(forEvaluationDF);
     System.out.format("r2 = %f\n", rCv2);
 
-//https://spark.apache.org/docs/3.2.1/api/java/org/apache/spark/mllib/evaluation/package-summary.html
-//ici on trouve class RegressionMetrics
-//et r2()
+    //https://spark.apache.org/docs/3.2.1/api/java/org/apache/spark/mllib/evaluation/package-summary.html
+    //ici on trouve class RegressionMetrics
+    //et r2()
     JavaRDD<Row> predictions_cv_rdd2 = predictions_cv.select("prediction", "label").toJavaRDD();
     JavaPairRDD< Object, Object> predictionAndLabels2 = predictions_cv_rdd2.mapToPair(p -> new Tuple2<>(p.getAs(0), p.getAs(1)));
     //MulticlassMetrics metrics_cv_2 = new MulticlassMetrics(predictionAndLabels2.rdd());
