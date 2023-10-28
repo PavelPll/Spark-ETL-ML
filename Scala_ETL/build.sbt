@@ -13,7 +13,7 @@ libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "3.3.4"
 libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs-client" % "3.3.4"
 
 libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.9.1"
-
+  
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.10.1"
 
 val sparkVersion = "3.3.0"

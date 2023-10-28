@@ -1,46 +1,30 @@
 import scala.sys.process._
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{FileSystem, Path}
 
 object Extract {
-//Extraction of games pages to ./games on masternode!
-  def json_extraction():Int={
+
+  // Extraction of the web page together with all its pages to ./folder on masternode
+  def json_extraction(web:String, folder:String):Int={
+    val mkdir = os.proc("mkdir", os.pwd+"/"+folder).call()
+    println(mkdir.exitCode)
     var outp: Int = 1
     try {
-      var r1 = requests.get("https://www.balldontlie.io/api/v1/games?seasons[]=2021")
+      var r1 = requests.get(web)
       var json1 = ujson.read(r1.text)
-      val gameP = json1("meta")("total_pages").num.toInt
-      for( i <- 1 to gameP){
-        var gameURL = s"https://www.balldontlie.io/api/v1/games?page=${i}&seasons[]=2021"
-        println(gameURL)
-        r1 = requests.get(gameURL)
+      val Npages = json1("meta")("total_pages").num.toInt
+      for( i <- 1 to Npages){
+        var URL = web+s"&page=${i}" 
+        println(URL)
+        r1 = requests.get(URL)
         if (r1.statusCode == 200){
           json1 = ujson.read(r1.text)
-          var fln = s"games_${i}.json"
-          os.write(os.pwd/"games"/ fln, json1("data"))
-          //save to hdfs does not work
-          //os.write(os.Path("hdfs://172.31.9.8:9000/scala")/ fln, json1("data"))
-          println(i)
+          var fln = folder + s"_${i}.json"
+          os.write(os.pwd/folder/ fln, json1("data"))
+          // println("Type of var1: "+json1.getClass)
+          println("Page: "+i+" is saved on master")
         }else
-          print("probleme with games extraction")
-        Thread.sleep(1000)
-      }
-
-      //Extraction of stats pages to ./stats on masternode!
-      var r4 = requests.get("https://www.balldontlie.io/api/v1/stats?seasons[]=2021")
-      var json4 = ujson.read(r4.text)
-      val statsP = json4("meta")("total_pages").num.toInt
-      //for( i <- 1 to statsP){
-      for( i <- 1 to 200){
-        println(i)
-        var statsURL = s"https://www.balldontlie.io/api/v1/stats?page=${i}&seasons[]=2021"
-        println(statsURL)
-        r4 = requests.get(statsURL)
-        if (r4.statusCode == 200){
-          json4 = ujson.read(r4.text)
-          var fln = s"stats_${i}.json"
-          os.write(os.pwd/"stats"/ fln, json4("data"))
-          //println(i)
-        }else
-          print("probleme with stats extraction")
+          print("problem with web extraction")
         Thread.sleep(1400)
       }
       outp = 0
@@ -52,3 +36,5 @@ object Extract {
   }
 
 }
+
+
