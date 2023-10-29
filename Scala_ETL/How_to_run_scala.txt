@@ -1,3 +1,4 @@
+In order to run this Scala project on Spark cluster:
 
 (1) CHECK java 8 or INSTALL it
 sudo update-alternatives --config java

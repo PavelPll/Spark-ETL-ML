@@ -1,3 +1,4 @@
+Some inspirations I got from:
 https://spark.apache.org/docs/latest/running-on-yarn.html
 https://sparkbyexamples.com/spark/spark-setup-on-hadoop-yarn/
 https://dwbi.org/pages/192
@@ -60,7 +61,7 @@ scp /home/ubuntu/spark/conf/* ubuntu@datanode1:/home/ubuntu/spark/conf/
 scp /home/ubuntu/spark/conf/* ubuntu@datanode2:/home/ubuntu/spark/conf/
 scp /home/ubuntu/spark/conf/* ubuntu@datanode3:/home/ubuntu/spark/conf/
 
-(7)
+(7) START Spark ($SPARK_HOME/sbin/start-all.sh)
 BEFORE
 jps on master gave:
 3488 NodeManager
@@ -80,6 +81,8 @@ starting org.apache.spark.deploy.master.Master, logging to /home/ubuntu/spark/lo
 datanode2: starting org.apache.spark.deploy.worker.Worker, logging to /home/ubuntu/spark/logs/spark-ubuntu-org.apache.spark.deploy.worker.Worker-1-datanode2.out
 datanode1: starting org.apache.spark.deploy.worker.Worker, logging to /home/ubuntu/spark/logs/spark-ubuntu-org.apache.spark.deploy.worker.Worker-1-datanode1.out
 datanode3: starting org.apache.spark.deploy.worker.Worker, logging to /home/ubuntu/spark/logs/spark-ubuntu-org.apache.spark.deploy.worker.Worker-1-datanode3.out
+
+AFTER
 NOW on master we see "Master":
 3488 NodeManager
 2704 NameNode
@@ -96,7 +99,7 @@ NOW on slave we see "Worker":
 1135 DataNode
 
 (8)
-UI Spark, see port 4040 to see running nodes etc
+For Spark UI, see port 4040 to see running nodes etc
 
 (9)
 Configure history server
@@ -118,47 +121,10 @@ $SPARK_HOME/sbin/start-history-server.sh
 # hdfs dfs -chmod 1777 /user/spark/spark-logs
 // restart the SHS process to test. CM > Spark > Instances > (select Spark History Server) > Actions > Restart
 
-(9)
-wget https://dst-de.s3.eu-west-3.amazonaws.com/scala_spark_fr/shakespeare.txt
-hdfs dfs -mkdir /scala
-hdfs dfs -put ~/shakespeare.txt /scala/
-hdfs dfs -put ./SimpleApp.scala /scala/
+-----------------------That's it------------------
 
 (10)
-INSTALL sbt
-echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
-echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
-curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
-sudo apt-get update
-sudo apt-get install sbt
-
-nano build.sbt
-name := "Simple Project"
-version := "1.0"
-scalaVersion := "2.12.15"
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.3.1"
-
-(11)
-sbt package
-check: ls target/scala-2.12
-
-(12)
-info spark-submit here: https://sparkbyexamples.com/spark/spark-submit-command/
-
-spark-submit --class "SimpleApp" --master yarn --deploy-mode cluster target/scala-2.12/simple-project_2.12-1.0.jar
-https://stackoverflow.com/questions/30718473/where-do-normal-println-go-in-a-scala-jar-under-spark
-spark-submit --class "SimpleApp" --master yarn --deploy-mode client target/scala-2.12/simple-project_2.12-1.0.jar
-
-spark-shell --class "SimpleApp" --master yarn --deploy-mode client -i neo4jsparkCluster.scala
-
-took 0.088573 s
-Lines with a: 4722, Lines with b: 1838
-Job 3 finished: count at SimpleApp.scala:11, took 0.107265 s
-Lines with a: 16792, Lines with b: 6232
-
-Path does not exist
-
--------restart-------------
+-------restart Spark cluster-------------
 $SPARK_HOME/sbin/start-all.sh
 $SPARK_HOME/sbin/stop-all.sh 
 
@@ -166,25 +132,17 @@ $HADOOP_HOME/sbin/stop-all.sh
 $HADOOP_HOME/sbin/start-dfs.sh
 $HADOOP_HOME/sbin/start-yarn.sh
 
-##############end#################
-
-
-
-
-(4) 
+(11) To play around with parameters 
 scala> sc.getConf.get("spark.executor.memory")
 res5: String = 512m
 
-(5)
-https://saturncloud.io/blog/spark-with-hadoop-yarn-using-the-entire-cluster-nodes/
-https://dwbi.org/pages/192
+##############end#################
 
-export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
-export SPARK_HOME=/home/ubuntu/spark
-export PATH=$PATH:$SPARK_HOME/bin
-export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH
+some doc about spark-submit is here: https://sparkbyexamples.com/spark/spark-submit-command/
+and here: https://stackoverflow.com/questions/30718473/where-do-normal-println-go-in-a-scala-jar-under-spark
 
-export SPARK_HOME=/usr/local/spark
-export PATH=$PATH:$SPARK_HOME/bin
+
+
+
 
 

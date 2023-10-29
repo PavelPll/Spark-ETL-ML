@@ -1,5 +1,8 @@
-# OBJECTIVE: To get familiar with Spark.
-I installed Spark cluster on AWS cloud and demonstrated some its important functionalities. 
-* The file spark_installation.txt describes the installation procedure. This is done on top of a Hadoop YARN cluster, installed previously (for details see Hadoop-Hive project in the current git repository: https://github.com/PavelPll/Hadoop).  
-* The folder ./Scala_ETL contains my example of ETL (Extract Transfer Load) pipeline written in Scala, with a description how to run it on Spark cluster.
-* The folder ./Java_ML contains my example of simple machine learning model written in Java, with a description how to run it on Spark cluster.
+# OBJECTIVE: Run ETL (Extract Transfer Load) pipeline on Spark cluster.
+For technical side how to run the code please see the file How_to_run_scala.txt.
+The project contains the following steps:
+* Extract.scala Get data, in the form of hundreds json files, from the internet. Two different datasets are extracted from the web page 1 and the web page 2, respectively. Each web page has many sub-pages, accessible by adding &page=${i} to URL.
+* toHDFS.scala Transfer hundrends of files to HDFS. 
+* df_union.scala Convert transfered files to DataFrames and union them, in order to get two DataFrames, corresponding to the web page 1 and the web page 2, respectively.
+* ETL.scala Join these two dataframes.ML pipeline (Scaling + Simple Model) fiting together with prediction. 
+* ETL.scala Save the resulting DataFrame to HDFS as .csv file for further usage by data scientist.

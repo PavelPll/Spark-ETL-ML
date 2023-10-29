@@ -1,0 +1,44 @@
+In order to run this Java project (./src/main/java/ML.java) on Spark cluster using MAVEN:
+
+(1) CHECK java 8 or INSTALL it
+sudo update-alternatives --config java
+java -version
+go to java 1.8.*
+sudo apt-get install openjdk-8-jre
+In my configuration of Hadoop/Spark java 8 is used
+ 
+(2) INSTALL maven
+sudo apt install maven
+
+(3) Create pom file
+I used this one:
+wget -O pom.xml https://dst-de.s3.eu-west-3.amazonaws.com/java_spark_fr/pom2.xml
+The only difference is that I changed "simple project" to "ml" in two places.
+ 
+
+(4) RESTART Spark cluster if needed
+$SPARK_HOME/sbin/stop-all.sh 
+$HADOOP_HOME/sbin/stop-all.sh
+$HADOOP_HOME/sbin/start-dfs.sh
+$HADOOP_HOME/sbin/start-yarn.sh
+$SPARK_HOME/sbin/start-all.sh
+
+(5) Add the data file, housing.data, to HDFS
+hdfs dfs -put ./src/housing.data /scala/
+
+(6) CHECK HDFS
+hdfs dfs -ls -R /scala
+or
+http://ip_master:9870/explorer.html#/
+
+(7) COMPILE project
+cd ./Spark-ETL-ML/Java_ML/How_to_run_with_maven
+mvn package
+
+(8) RUN Spark job
+spark-submit --class "ML" --master yarn --deploy-mode client target/ml-1.0.jar
+
+(9) 
+USE "--deploy-mode client" to be able to see stdout
+or 
+USE "--deploy-mode cluster" otherwise
