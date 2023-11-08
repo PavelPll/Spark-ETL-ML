@@ -81,7 +81,7 @@ mydb=> SELECT * FROM streaming5;
 -----------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------
 
-(9) During Spark streaming data batches are continuously written in the tamle streaming5:
+(9) During Spark streaming data batches are continuously written in the table streaming5:
 mydb=> SELECT * FROM streaming5;
  id |        start        |        ends         |    make    | sum_price | cylinders | value
 ----+---------------------+---------------------+------------+-----------+-----------+-------
@@ -94,6 +94,7 @@ mydb=> SELECT * FROM streaming5;
   7 | 2023-11-07 12:23:15 | 2023-11-07 12:23:45 | mazda      |     10795 | four      |     4
 (7 rows)
 
+SEVERAL seconds later:
 mydb=> SELECT * FROM streaming5;
  id |        start        |        ends         |    make    | sum_price | cylinders | value
 ----+---------------------+---------------------+------------+-----------+-----------+-------
