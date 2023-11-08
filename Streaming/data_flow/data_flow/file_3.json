@@ -1,0 +1,5 @@
+{"time": "2023-11-07 14:17:20", "make": "toyota", "num-of-cylinders": "four", "composed": {"fuel-system": "idi", "price": 7898}}
+{"time": "2023-11-07 14:17:20", "make": "honda", "num-of-cylinders": "four", "composed": {"fuel-system": "1bbl", "price": 6479}}
+{"time": "2023-11-07 14:17:20", "make": "chevrolet", "num-of-cylinders": "four", "composed": {"fuel-system": "2bbl", "price": 6295}}
+{"time": "2023-11-07 14:17:20", "make": "mitsubishi", "num-of-cylinders": "four", "composed": {"fuel-system": "spdi", "price": 7689}}
+{"time": "2023-11-07 14:17:20", "make": "mercedes-benz", "num-of-cylinders": "five", "composed": {"fuel-system": "idi", "price": 25552}}

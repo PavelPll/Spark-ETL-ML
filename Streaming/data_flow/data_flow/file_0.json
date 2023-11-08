@@ -1,0 +1,3 @@
+{"time": "2023-11-07 14:16:45", "make": "audi", "num-of-cylinders": "five", "composed": {"fuel-system": "mpfi", "price": 17450}}
+{"time": "2023-11-07 14:16:45", "make": "nissan", "num-of-cylinders": "four", "composed": {"fuel-system": "idi", "price": 7099}}
+{"time": "2023-11-07 14:16:45", "make": "volkswagen", "num-of-cylinders": "four", "composed": {"fuel-system": "mpfi", "price": 7975}}

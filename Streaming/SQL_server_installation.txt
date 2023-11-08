@@ -1,0 +1,141 @@
+Some references used to solve different issues
+https://www.cherryservers.com/blog/how-to-install-and-setup-postgresql-server-on-ubuntu-20-04
+https://gist.github.com/ramn/cc3f966d2a3bbb88748d
+https://stackoverflow.com/questions/3194589/how-can-i-connect-to-a-postgresql-database-in-scala
+https://alvinalexander.com/scala/scala-jdbc-connection-mysql-sql-select-example/
+
+for geting data in Spark 
+https://spark.apache.org/docs/2.1.0/api/java/org/apache/spark/sql/Row.html
+to insert data into SQL table
+https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html
+https://www.postgresql.org/docs/current/datatype.html
+
+------------------------------------------------------------------------------------------------------------------
+
+(1) CREATE une nouvelle instance/server (t2 micro) on AWS cloud. 
+
+(2) INTRODUCE paswordless ssh connection to Hadoop/Spark claster (to 3 old servers: master and two workers).
+
+(3) INSTALL posgresql
+sudo apt install wget ca-certificates
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
+
+sudo apt update
+apt install postgresql postgresql-contrib
+service postgresql status
+
+(4) MAKE database accessible from outside this server
+sudo nano /etc/postgresql/16/main/postgresql.conf
+listen_addresses = '*'
+sudo nano /etc/postgresql/16/main/pg_hba.conf
+host all all 0.0.0.0/0 md5
+"We are allowing TCP/IP connections (host) to all databases (all) for all users (all) with any IPv4 address 
+(0.0.0.0/0) using an MD5 encrypted password for authentication (md5)."
+
+(5) CHECK whether (4) is done correctly
+ubuntu@db:~$ ss -nlt | grep 5432
+LISTEN   0        200            127.0.0.1:5432          0.0.0.0:*
+systemctl restart postgresql
+ubuntu@db:~$ ss -nlt | grep 5432
+LISTEN   0        200              0.0.0.0:5432          0.0.0.0:*
+LISTEN   0        200                 [::]:5432             [::]:*
+
+(6) CREATE new user pavel1
+sudo -u postgres createuser pavel1
+sudo -u postgres createdb pavel1
+sudo -u postgres psql
+psql=# alter user pavel1 with encrypted password 'p';
+// psql=# grant all privileges on database <dbname> to <username> ;
+psql=# grant all privileges on database pavel1 to pavel1 ;
+sudo -u postgres psql
+psql=# ALTER USER pavel1 WITH CREATEDB;
+
+(7) PREPARE table for Spark streaming
+ubuntu@db:~$ psql -h 127.0.0.1 -p 5432 -U pavel1
+pavel1=> CREATE DATABASE mydb;
+pavel1=> \c mydb
+mydb=>
+CREATE TABLE streaming5 (id SERIAL PRIMARY KEY, start timestamp, ends timestamp, make text, sum_price integer, cylinders text, value integer);
+INSERT INTO streaming5 (start, ends, make, sum_price, cylinders, value) VALUES ('2023-11-07 11:28:30', '2023-11-07 11:28:30', 'text', '10', 'text', '10');
+
+(8) CHECK whether (6) is ok
+mydb=> \dt
+          List of relations
+ Schema |    Name    | Type  | Owner
+--------+------------+-------+--------
+ public | quotes     | table | pavel1
+ public | streaming  | table | pavel1
+ public | streaming2 | table | pavel1
+ public | streaming3 | table | pavel1
+ public | streaming4 | table | pavel1
+ public | streaming5 | table | pavel1
+(6 rows)
+
+mydb=> SELECT * FROM streaming5;
+ id |        start        |        ends         | make | sum_price | cylinders | value
+----+---------------------+---------------------+------+-----------+-----------+-------
+  1 | 2023-11-07 11:28:30 | 2023-11-07 11:28:30 | text |        10 | text      |    10
+(1 row)
+
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+
+(9) During Spark streaming data batches are continuously written in the tamle streaming5:
+mydb=> SELECT * FROM streaming5;
+ id |        start        |        ends         |    make    | sum_price | cylinders | value
+----+---------------------+---------------------+------------+-----------+-----------+-------
+  1 | 2023-11-07 11:28:30 | 2023-11-07 11:28:30 | text       |        10 | text      |    10
+  2 | 2023-11-07 12:23:15 | 2023-11-07 12:23:45 | toyota     |      7898 | four      |     4
+  3 | 2023-11-07 12:23:30 | 2023-11-07 12:24:00 | mazda      |     10795 | four      |     4
+  4 | 2023-11-07 12:23:00 | 2023-11-07 12:23:30 | toyota     |      7898 | four      |     4
+  5 | 2023-11-07 12:23:15 | 2023-11-07 12:23:45 | mitsubishi |      5389 | four      |     4
+  6 | 2023-11-07 12:23:30 | 2023-11-07 12:24:00 | mitsubishi |      5389 | four      |     4
+  7 | 2023-11-07 12:23:15 | 2023-11-07 12:23:45 | mazda      |     10795 | four      |     4
+(7 rows)
+
+mydb=> SELECT * FROM streaming5;
+ id |        start        |        ends         |    make    | sum_price | cylinders | value
+----+---------------------+---------------------+------------+-----------+-----------+-------
+  1 | 2023-11-07 11:28:30 | 2023-11-07 11:28:30 | text       |        10 | text      |    10
+  2 | 2023-11-07 12:23:15 | 2023-11-07 12:23:45 | toyota     |      7898 | four      |     4
+  3 | 2023-11-07 12:23:30 | 2023-11-07 12:24:00 | mazda      |     10795 | four      |     4
+  4 | 2023-11-07 12:23:00 | 2023-11-07 12:23:30 | toyota     |      7898 | four      |     4
+  5 | 2023-11-07 12:23:15 | 2023-11-07 12:23:45 | mitsubishi |      5389 | four      |     4
+  6 | 2023-11-07 12:23:30 | 2023-11-07 12:24:00 | mitsubishi |      5389 | four      |     4
+  7 | 2023-11-07 12:23:15 | 2023-11-07 12:23:45 | mazda      |     10795 | four      |     4
+  8 | 2023-11-07 12:23:45 | 2023-11-07 12:24:15 | volkswagen |     13295 | five      |     5
+  9 | 2023-11-07 12:24:00 | 2023-11-07 12:24:30 | porsche    |     32528 | six       |     6
+ 10 | 2023-11-07 12:23:45 | 2023-11-07 12:24:15 | volkswagen |      7975 | four      |     4
+ 11 | 2023-11-07 12:23:30 | 2023-11-07 12:24:00 | volkswagen |     13295 | five      |     5
+(11 rows)
+
+------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+psql --help
+  -h, --host=HOSTNAME      database server host or socket directory (default: "/var/run/postgresql")
+  -p, --port=PORT          database server port (default: "5432")
+  -U, --username=USERNAME  database user name (default: "ubuntu")
+  -w, --no-password        never prompt for password
+  -W, --password           force password prompt (should happen automatically)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

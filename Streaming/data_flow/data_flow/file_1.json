@@ -1,0 +1,5 @@
+{"time": "2023-11-07 14:16:58", "make": "peugot", "num-of-cylinders": "four", "composed": {"fuel-system": "idi", "price": 13200}}
+{"time": "2023-11-07 14:16:58", "make": "mazda", "num-of-cylinders": "four", "composed": {"fuel-system": "mpfi", "price": 18280}}
+{"time": "2023-11-07 14:16:58", "make": "volkswagen", "num-of-cylinders": "four", "composed": {"fuel-system": "mpfi", "price": 7975}}
+{"time": "2023-11-07 14:16:58", "make": "mazda", "num-of-cylinders": "two", "composed": {"fuel-system": "4bbl", "price": 10945}}
+{"time": "2023-11-07 14:16:58", "make": "audi", "num-of-cylinders": "four", "composed": {"fuel-system": "mpfi", "price": 13950}}

@@ -1,0 +1,3 @@
+{"time": "2023-11-07 14:17:58", "make": "chevrolet", "num-of-cylinders": "three", "composed": {"fuel-system": "2bbl", "price": 5151}}
+{"time": "2023-11-07 14:17:58", "make": "mercedes-benz", "num-of-cylinders": "five", "composed": {"fuel-system": "idi", "price": 25552}}
+{"time": "2023-11-07 14:17:58", "make": "mercury", "num-of-cylinders": "four", "composed": {"fuel-system": "mpfi", "price": 16503}}
