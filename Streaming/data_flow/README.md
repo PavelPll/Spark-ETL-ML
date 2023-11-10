@@ -4,6 +4,5 @@ Two alternative options are available (a) or (b):
 * Generate data flow directly on Spark cluster in HDFS format using pyspark(python). RUN: python data_flow_with_pyspark.py
 
 > [!NOTE]
-> For technical side how to run the code please see the file How_to_run.txt.
-> The datafile (./Automobile_price_data_Raw_.csv) I took from here: "https://github.com/MicrosoftLearning/Principles-of-Machine-Learning-Python/blob/master/Module7/Automobile%20price%20data%20_Raw_.csv"
+The datafile (./Automobile_price_data_Raw_.csv) I took from here: "https://github.com/MicrosoftLearning/Principles-of-Machine-Learning-Python/blob/master/Module7/Automobile%20price%20data%20_Raw_.csv"
 
