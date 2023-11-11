@@ -1,10 +1,11 @@
+# CREATE artificial data flow in HDFS for Spark streaming
+
 import os
 import sys
+
 # ACTIVATE python environment
 activate_env = os.path.expanduser("./pysprk/bin/activate_this.py")
 exec(open(activate_env).read(), dict(__file__=activate_env))
-
-# CREATE artificial data flow in HDFS for Spark streaming
 
 import flask
 from pyspark.sql import SparkSession
