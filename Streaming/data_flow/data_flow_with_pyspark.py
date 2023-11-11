@@ -9,13 +9,13 @@ exec(open(activate_env).read(), dict(__file__=activate_env))
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
+import findspark
 import pandas as pd
 import numpy as np
 import json
 from time import sleep
 from random import random
 from pprint import pprint
-import findspark
 from time import gmtime, strftime
 #import os
 # os.environ['PYSPARK_PYTHON'] = "./pysprk/bin/python"
