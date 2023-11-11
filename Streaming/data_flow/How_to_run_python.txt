@@ -41,7 +41,7 @@ so that
 pip install pandas==1.5.3
 
 (9) IMPORTANT
-We will use the python installed on the master node to run the generation of continuous data. The python of the pysprk environment will be activated automatically for each run inside .py file (using ./pysprk/bin/activate_this.py, see data_flow_with_pyspark.py for details).
+We will use the python installed on the master node to run the generation of continuous data. The python of the pysprk     environment will be activated automatically for each run inside .py file (using ./pysprk/bin/activate_this.py, see data_flow_with_pyspark.py for details).
 (pysprk) ubuntu@masternode:~/spark/my/st/streamApp2/data_flow$ which python3
 /home/ubuntu/spark/my/st/streamApp2/data_flow/pysprk/bin/python3
 (pysprk) ubuntu@masternode:~/spark/my/st/streamApp2/data_flow$ deactivate
