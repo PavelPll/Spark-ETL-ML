@@ -1,22 +1,30 @@
+import os
+import sys
+# ACTIVATE python environment
+activate_env = os.path.expanduser("./pysprk/bin/activate_this.py")
+exec(open(activate_env).read(), dict(__file__=activate_env))
+
 # CREATE artificial data flow in HDFS for Spark streaming
 
+import flask
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 import pandas as pd
 import numpy as np
 import json
-import os
 from time import sleep
 from random import random
 from pprint import pprint
 import findspark
 from time import gmtime, strftime
-
+#import os
+# os.environ['PYSPARK_PYTHON'] = "./pysprk/bin/python"
+# os.environ['PYSPARK_PYTHON'] = "/usr/bin/python3"
 
 # Connect to Spark cluster
 findspark.init()
 spark = SparkSession.builder.master("yarn").appName("Data_Flow").getOrCreate()
-# Delete data_flow and data_static from previous run of data_flow_with_pyspark.py
+# Delete data_flow and data_static from previous run of data_flow.py
 fs = spark._jvm.org.apache.hadoop.fs.FileSystem.get(spark._jsc.hadoopConfiguration())
 fs.delete(spark._jvm.org.apache.hadoop.fs.Path("/scala/data_flow/"), True)
 fs.delete(spark._jvm.org.apache.hadoop.fs.Path("/scala/data_static/"), True) 
@@ -37,18 +45,18 @@ df = pd.read_csv("Automobile_price_data_Raw_.csv", sep=",")
 df = df[["make", "fuel-type", "aspiration", "num-of-doors", "body-style", "drive-wheels", "engine-location", "engine-type", "num-of-cylinders", "fuel-system", "price"]]
 df = df[["make", "num-of-cylinders", "fuel-system", "price"]]
 df = df.replace("?", np.nan).dropna(axis=0)
-print(df.dtypes)
+# print(df.dtypes)
 df = df.astype({'price': 'int32'})
-print(df.dtypes)
+# print(df.dtypes)
 
 df = df.drop_duplicates(subset=["make", "num-of-cylinders", "fuel-system"], keep="first").reset_index(drop=True)
-print(len(df))
+# print(len(df))
 # Num =  df["num-of-cylinders"].unique()
  
 # Merge two columns to unmerge them later during batch processing
 df["composed"] = df.apply(lambda x: {"fuel-system":x["fuel-system"], "price":x["price"]}, axis=1)
 df = df.drop(["fuel-system"], axis=1).drop(["price"], axis=1)
-print(df[:10])
+# print(df[:10])
 # print(df.sample(n=3))
 
 # Convert Pandas dataframe to Spark dataframe
