@@ -1,5 +1,5 @@
 In order to run this project on Spark cluster:
-(a) Run generation of the data flow (cd data_flow && python data_flow.py or cd data_flow && python data_flow_with_pyspark.py)
+(a) Run generation of the data flow (cd data_flow && python data_flow.py or cd data_flow && python data_flow_with_pyspark.py). More details are given in ./data_flow/How_to_run_python.py.
 (b) Start Spark streaming (see (1)-(7) below)
 (c) Check database: run from master "ssh db", then see SQL_server_installation.txt for more details.
 
