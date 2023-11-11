@@ -59,7 +59,7 @@ mydb=>
 CREATE TABLE streaming5 (id SERIAL PRIMARY KEY, start timestamp, ends timestamp, make text, sum_price integer, cylinders text, value integer);
 INSERT INTO streaming5 (start, ends, make, sum_price, cylinders, value) VALUES ('2023-11-07 11:28:30', '2023-11-07 11:28:30', 'text', '10', 'text', '10');
 
-(8) CHECK whether (6) is ok
+(8) CHECK whether (7) is done correctly
 mydb=> \dt
           List of relations
  Schema |    Name    | Type  | Owner
