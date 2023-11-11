@@ -5,4 +5,4 @@ I installed Spark cluster on AWS cloud and showed some its important functionali
 * The folder **./Java_ML** contains the example of simple machine learning model written in Java.
 * The example of data batch processing with Spark (**./Streaming**).
 > [!NOTE]
-> Each project is accompained by intsruction how to run it on Spark cluster in Scala, Java or Python environment (see the corresponding **How_to_run.txt** file).
+> Each project is accompained by intsruction how to run it on Spark cluster in Scala, Java or Python environment (see the corresponding **How_to_run.txt** files).
