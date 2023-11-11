@@ -55,6 +55,51 @@ ubuntu@masternode:~/spark/my/st/streamApp2/data_flow$ which python3
 ubuntu@masternode:~/spark/my/st/streamApp2/data_flow$ python3 data_flow.py
 or
 ubuntu@masternode:~/spark/my/st/streamApp2/data_flow$ python3 data_flow_with_pyspark.py
+------------------------------------------------------------------------------------------------
+ubuntu@masternode:~/spark/my/st/streamApp2/data_flow$ python3 data_flow_with_spark.py
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+23/11/11 17:55:25 WARN Client: Neither spark.yarn.jars nor spark.yarn.archive is set, falling back to uploading libraries under SPARK_HOME.
+/home/ubuntu/spark/my/st/streamApp2/data_flow/pysprk/lib/python3.8/site-packages/pyspark/sql/pandas/conversion.py:371: FutureWarning: iteritems is deprecated and will be removed in a future version. Use .items instead.
+  for column, series in pdf.iteritems():
+/home/ubuntu/spark/my/st/streamApp2/data_flow/pysprk/lib/python3.8/site-packages/pyspark/sql/pandas/conversion.py:371: FutureWarning: iteritems is deprecated and will be removed in a future version. Use .items instead.
+  for column, series in pdf.iteritems():
++-------------------+----------+----------------+--------------------+          
+|               time|      make|num-of-cylinders|            composed|
++-------------------+----------+----------------+--------------------+
+|2023-11-11 17:55:59|      audi|            five|{fuel-system -> m...|
+|2023-11-11 17:55:59|volkswagen|            four|{fuel-system -> m...|
++-------------------+----------+----------------+--------------------+
+
+File json 0 has been genereted in HDFS, waiting several seconds before generating the next one...
++-------------------+----------+----------------+--------------------+
+|               time|      make|num-of-cylinders|            composed|
++-------------------+----------+----------------+--------------------+
+|2023-11-11 17:56:27|    jaguar|             six|{fuel-system -> m...|
+|2023-11-11 17:56:27|mitsubishi|            four|{fuel-system -> s...|
+|2023-11-11 17:56:27|  plymouth|            four|{fuel-system -> 2...|
++-------------------+----------+----------------+--------------------+
+
+File json 1 has been genereted in HDFS, waiting several seconds before generating the next one...
++-------------------+------+----------------+--------------------+
+|               time|  make|num-of-cylinders|            composed|
++-------------------+------+----------------+--------------------+
+|2023-11-11 17:56:48|   bmw|            four|{fuel-system -> m...|
+|2023-11-11 17:56:48|toyota|            four|{fuel-system -> i...|
++-------------------+------+----------------+--------------------+
+
+File json 2 has been genereted in HDFS, waiting several seconds before generating the next one...
++-------------------+-------------+----------------+--------------------+
+|               time|         make|num-of-cylinders|            composed|
++-------------------+-------------+----------------+--------------------+
+|2023-11-11 17:57:09|        isuzu|            four|{fuel-system -> 2...|
+|2023-11-11 17:57:09|mercedes-benz|           eight|{fuel-system -> m...|
+|2023-11-11 17:57:09|      renault|            four|{fuel-system -> m...|
+|2023-11-11 17:57:09|   volkswagen|            four|{fuel-system -> i...|
++-------------------+-------------+----------------+--------------------+
+
+File json 3 has been genereted in HDFS, waiting several seconds before generating the next one...
+
 
 
 
