@@ -7,7 +7,6 @@ import sys
 activate_env = os.path.expanduser("./pysprk/bin/activate_this.py")
 exec(open(activate_env).read(), dict(__file__=activate_env))
 
-import flask
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 import pandas as pd
