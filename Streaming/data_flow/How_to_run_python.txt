@@ -32,7 +32,7 @@ Welcome to
 (6b) install pyspark
 (pysprk) ubuntu@masternode:~/spark/my/st/streamApp2/data_flow$ pip3 install pyspark==3.2.4
 
-(7) INSTALL other findspark
+(7) INSTALL findspark
 pip install findspark
 
 (8) INSTALL pandas
