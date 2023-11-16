@@ -1,6 +1,6 @@
 # OBJECTIVE: Create and Execute Spark Streaming pipeline (data batch processing) on Spark cluster.
 The project contains the following steps:
-* Generation of an artificial continuous flow of data ucing Python (**./data_flow**). Two alternative options are available:
+* Generation of an artificial continuous flow of data using Python (**./data_flow**). Two alternative options are available:
      - Generate dataflow on master using pandas(python) followed by its continuous transfer to HDFS.
      - Generate the same data flow directly on Spark cluster in HDFS format using pyspark(python). 
 * Reading data in batches in real time, preprocessing, continuous output batches on screen (**./src/main/streamApp.scala**). 
