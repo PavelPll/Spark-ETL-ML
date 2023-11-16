@@ -12,9 +12,10 @@ https://www.postgresql.org/docs/current/datatype.html
 
 ------------------------------------------------------------------------------------------------------------------
 
-(1) CREATE une nouvelle instance/server (t2 micro) on AWS cloud. 
+(1) CREATE une nouvelle instance/server (t2 micro) on AWS cloud in the same region as Spark. 
 
-(2) INTRODUCE paswordless ssh connection to Hadoop/Spark claster (to 3 old servers: master and two workers).
+(2) CONFIGURE secutity group
+INTRODUCE paswordless ssh connection to Hadoop/Spark claster (to 3 old servers: master and two workers).
 
 (3) INSTALL posgresql
 sudo apt install wget ca-certificates
