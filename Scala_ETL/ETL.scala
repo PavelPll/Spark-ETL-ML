@@ -6,6 +6,12 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import Extract._
 import toHDFS._
 import df_union._
+import toSQL.toSQLp
+import toS3bucket.createBucket
+import toS3bucket.toS3
+
+
+import org.apache.spark.sql.{Row}
 
 object ETL {
 
@@ -16,7 +22,8 @@ object ETL {
       .getOrCreate()
 
   def main(args: Array[String]) {
-    
+    import spark.implicits._    
+
     // EXTRACTION
     // Extraction of the web page 1 together with all its pages to ./folder on masternode
     val web1:String="https://www.balldontlie.io/api/v1/games?seasons[]=2021"
@@ -47,15 +54,30 @@ object ETL {
 
     // JOIN two DataFrames
     // left join to keep on lines because stats is not comlete
-    val df = games2.join(stats2, games2("id_match")===stats2("id_matchS") && games2("id_equipe")===stats2("id_equipeS"), "left_outer").drop("id_matchS").drop("id_equipeS")
+    var df = games2.join(stats2, games2("id_match")===stats2("id_matchS") && games2("id_equipe")===stats2("id_equipeS"), "left_outer").drop("id_matchS").drop("id_equipeS")
 
     //LOAD
     //write back to hdfs as a single file for further use by datascientist for example
     //file in many parts without coalesce(1)
     df.coalesce(1).write.csv("/data/scala/output_10d.csv")  
     //df.count()
-    df.show(10)
-  
+    print("df")
+    df.show(10)    
+    df.printSchema()
+    
+    // WRITE DOWN to SQL
+    val df2 = df.na.drop()
+    print("df2")
+    df2.show()
+    // df.limit returns DataSet
+    // df.head and df.take return Array[Row]
+    //val df3 = df2.head(21)
+    df2.head(21).foreach(toSQLp _)
+
+    // CREATE AWS S3 bucket if it does not exist
+    // createBucket("bucketpavel4")
+    // WRITE to AWS S3 bucket
+    toS3(spark, df2.limit(10), "fileIV.csv")  
   }
 
 }
