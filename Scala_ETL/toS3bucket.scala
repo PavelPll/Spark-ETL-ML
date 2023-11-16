@@ -19,8 +19,8 @@ import java.io.FileOutputStream
 import java.io.ByteArrayInputStream
 
 object toS3bucket {  
-  val AWS_ACCESS_KEY = "AKIAQK7E7SYDOBPRT23M"
-  val AWS_SECRET_KEY = "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"
+  val AWS_ACCESS_KEY = "..."
+  val AWS_SECRET_KEY = "..."
   
   // CREATE S3 bucket in the same geographical region as HADOOP and Spark
   def createBucket(s3BucketName: String): Unit={
