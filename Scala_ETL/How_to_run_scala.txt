@@ -32,7 +32,7 @@ cd ./Spark-ETL-ML/Scala_ETL
 sbt package
 
 (6) RUN Spark job
-spark-submit --packages com.lihaoyi:ujson_2.12:3.1.2,com.lihaoyi:requests_2.12:0.8.0,com.lihaoyi:os-lib_2.12:0.9.1,org.apache.spark:spark-sql_2.12:3.3.0,org.apache.hadoop:hadoop-client:3.3.4 --class "ETL" --master yarn --deploy-mode client target/scala-2.12/etl_2.12-1.0.jar
+spark-submit --packages com.lihaoyi:ujson_2.12:3.1.2,com.lihaoyi:requests_2.12:0.8.0,com.lihaoyi:os-lib_2.12:0.9.1,org.apache.spark:spark-sql_2.12:3.3.0,org.apache.hadoop:hadoop-client:3.3.4,org.postgresql:postgresql:42.4.3,com.amazonaws:aws-java-sdk-bundle:1.12.295,org.apache.hadoop:hadoop-aws:3.3.1 --class "ETL" --master yarn --deploy-mode client target/scala-2.12/etl_2.12-1.0.jar
 
 (7) 
 USE "--deploy-mode client" to be able to see stdout
